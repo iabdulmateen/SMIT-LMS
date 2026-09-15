@@ -28,6 +28,7 @@ import { TeacherQuizzes } from './components/teacher/TeacherQuizzes';
 // Admin Components
 import { AdminManageTrainers } from './components/admin/AdminManageTrainers';
 import { AdminStudentProgress } from './components/admin/AdminStudentProgress';
+import { AdminActivityLog } from './components/admin/AdminActivityLog';
 
 const MainLayout: React.FC = () => {
   const { isAuthenticated, role, studentTab, teacherTab, adminTab, sidebarOpen } = useLMS();
@@ -82,6 +83,7 @@ const MainLayout: React.FC = () => {
             <div className="animate-in fade-in duration-200">
               {adminTab === 'trainers' && <AdminManageTrainers />}
               {adminTab === 'studentProgress' && <AdminStudentProgress />}
+              {adminTab === 'activityLog' && <AdminActivityLog />}
             </div>
           )}
         </main>

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useLMS } from '../../context/LMSContext';
 import { Trainer } from '../../types';
-import { GraduationCap, UserPlus, Search, Edit, Trash2, X, Phone, Mail, BookOpen, Users, CheckCircle, Clock } from 'lucide-react';
+import { GraduationCap, UserPlus, Search, Edit, Trash2, X, Phone, Mail, BookOpen, Users, CheckCircle, Clock, History } from 'lucide-react';
 
 export const AdminManageTrainers: React.FC = () => {
-  const { trainers, addTrainer, updateTrainer, deleteTrainer, showToast } = useLMS();
+  const { trainers, addTrainer, updateTrainer, deleteTrainer, showToast, setAdminTab } = useLMS();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -91,21 +91,31 @@ export const AdminManageTrainers: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Header Card */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Manage Faculty & Trainers</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Manage Faculty & Trainers</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Oversee course instructors, batch allocation, and student rosters across SMIT campuses.
           </p>
         </div>
 
-        <button
-          onClick={handleOpenCreate}
-          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-xs flex items-center gap-2 transition self-start sm:self-auto"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>Add New Trainer</span>
-        </button>
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+          <button
+            onClick={() => setAdminTab('activityLog')}
+            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 cursor-pointer"
+          >
+            <History className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            <span>Activity Logs</span>
+          </button>
+
+          <button
+            onClick={handleOpenCreate}
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-xs flex items-center gap-2 transition cursor-pointer"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Add New Trainer</span>
+          </button>
+        </div>
       </div>
 
       {/* Search Bar */}
@@ -116,7 +126,7 @@ export const AdminManageTrainers: React.FC = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search instructor by name, email, or course..."
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 shadow-2xs"
+          className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 shadow-2xs transition"
         />
       </div>
 
@@ -125,7 +135,7 @@ export const AdminManageTrainers: React.FC = () => {
         {filteredTrainers.map((trainer) => (
           <div
             key={trainer.id}
-            className="bg-white rounded-2xl p-5 border border-slate-100 shadow-2xs flex flex-col justify-between space-y-4 hover:border-slate-200 transition"
+            className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 shadow-2xs flex flex-col justify-between space-y-4 hover:border-slate-200 dark:hover:border-slate-700 transition"
           >
             <div>
               {/* Header with Avatar & Status */}
@@ -137,7 +147,7 @@ export const AdminManageTrainers: React.FC = () => {
                     className="w-12 h-12 rounded-full object-cover ring-2 ring-purple-500/20 flex-shrink-0"
                   />
                   <div>
-                    <h3 className="font-bold text-slate-900 text-sm">{trainer.name}</h3>
+                    <h3 className="font-bold text-slate-900 dark:text-white text-sm">{trainer.name}</h3>
                     <p className="text-[11px] text-slate-400 font-medium">Exp: {trainer.experience}</p>
                   </div>
                 </div>
@@ -145,8 +155,8 @@ export const AdminManageTrainers: React.FC = () => {
                 <span
                   className={`px-2.5 py-0.5 rounded-md font-bold text-[10px] uppercase tracking-wider ${
                     trainer.status === 'ACTIVE'
-                      ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
-                      : 'bg-amber-50 text-amber-700 border border-amber-200'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60'
+                      : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60'
                   }`}
                 >
                   {trainer.status}
@@ -154,9 +164,9 @@ export const AdminManageTrainers: React.FC = () => {
               </div>
 
               {/* Info Details */}
-              <div className="mt-4 space-y-2 text-xs text-slate-600">
-                <div className="flex items-center gap-2 text-slate-800 font-semibold">
-                  <BookOpen className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" />
+              <div className="mt-4 space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-semibold">
+                  <BookOpen className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 flex-shrink-0" />
                   <span className="truncate">{trainer.assignedCourse}</span>
                 </div>
 
@@ -174,12 +184,12 @@ export const AdminManageTrainers: React.FC = () => {
                   {trainer.assignedBatches.map((batch, bIdx) => (
                     <span
                       key={bIdx}
-                      className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-medium"
+                      className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded text-[10px] font-medium"
                     >
                       {batch}
                     </span>
                   ))}
-                  <span className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded text-[10px] font-semibold">
+                  <span className="px-2 py-0.5 bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 rounded text-[10px] font-semibold">
                     {trainer.totalStudents} Students
                   </span>
                 </div>
@@ -187,17 +197,17 @@ export const AdminManageTrainers: React.FC = () => {
             </div>
 
             {/* Bottom Actions */}
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
               <button
                 onClick={() => handleOpenEdit(trainer)}
-                className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition"
+                className="p-1.5 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40 rounded-lg transition cursor-pointer"
                 title="Edit Trainer"
               >
                 <Edit className="w-4 h-4" />
               </button>
               <button
                 onClick={() => deleteTrainer(trainer.id)}
-                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition cursor-pointer"
                 title="Remove Trainer"
               >
                 <Trash2 className="w-4 h-4" />
@@ -209,15 +219,15 @@ export const AdminManageTrainers: React.FC = () => {
 
       {/* Add / Edit Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-100">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="font-bold text-slate-800 text-base">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-150">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">
                 {editingTrainer ? 'Edit Trainer' : 'Add New Trainer'}
               </h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 transition"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -225,7 +235,7 @@ export const AdminManageTrainers: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
                   Instructor Name *
                 </label>
                 <input
@@ -234,13 +244,13 @@ export const AdminManageTrainers: React.FC = () => {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. Sir Kashif Sulaiman"
-                  className="w-full px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:outline-hidden focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
                     Email *
                   </label>
                   <input
@@ -248,55 +258,55 @@ export const AdminManageTrainers: React.FC = () => {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                    className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:outline-hidden focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
                     Phone
                   </label>
                   <input
                     type="text"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                    className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:outline-hidden focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
                   Assigned Course
                 </label>
                 <input
                   type="text"
                   value={formData.assignedCourse}
                   onChange={(e) => setFormData({ ...formData, assignedCourse: e.target.value })}
-                  className="w-full px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:outline-hidden focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
                     Batches (comma separated)
                   </label>
                   <input
                     type="text"
                     value={formData.assignedBatches}
                     onChange={(e) => setFormData({ ...formData, assignedBatches: e.target.value })}
-                    className="w-full px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                    className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:outline-hidden focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
                     Experience
                   </label>
                   <input
                     type="text"
                     value={formData.experience}
                     onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-                    className="w-full px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                    className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:outline-hidden focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                   />
                 </div>
               </div>
@@ -305,13 +315,13 @@ export const AdminManageTrainers: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition"
+                  className="px-4 py-2 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg shadow-xs transition"
+                  className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg shadow-xs transition cursor-pointer"
                 >
                   Save Trainer
                 </button>

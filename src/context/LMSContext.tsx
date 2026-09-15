@@ -10,6 +10,9 @@ import {
   StudentQuizResult,
   FeeRecord,
   Trainer,
+  ActivityLog,
+  ActivityActionType,
+  ActivityCategory,
 } from '../types';
 import {
   INITIAL_STUDENT_PROFILE,
@@ -24,11 +27,12 @@ import {
   INITIAL_STUDENT_QUIZ_RESULTS,
   INITIAL_FEE_RECORDS,
   INITIAL_TRAINERS,
+  INITIAL_ACTIVITY_LOGS,
 } from '../data/mockData';
 
 export type StudentTab = 'dashboard' | 'progress' | 'attendance' | 'payment' | 'assignment' | 'quiz' | 'profile';
 export type TeacherTab = 'students' | 'attendance' | 'assignments' | 'quizzes';
-export type AdminTab = 'trainers' | 'studentProgress';
+export type AdminTab = 'trainers' | 'studentProgress' | 'activityLog';
 
 interface ToastNotification {
   id: string;
@@ -67,6 +71,7 @@ interface LMSContextType {
   quizResults: StudentQuizResult[];
   feeRecords: FeeRecord[];
   trainers: Trainer[];
+  activityLogs: ActivityLog[];
   notifications: ToastNotification[];
 
   // Actions
@@ -85,6 +90,8 @@ interface LMSContextType {
   addTrainer: (trainerData: Omit<Trainer, 'id'>) => void;
   updateTrainer: (id: string, update: Partial<Trainer>) => void;
   deleteTrainer: (id: string) => void;
+  addActivityLog: (entry: Omit<ActivityLog, 'id' | 'timestamp'>) => void;
+  clearActivityLogs: () => void;
   toggleTopicCompletion: (moduleId: string, topicId: string) => void;
   resetAllData: () => void;
 }
@@ -154,6 +161,11 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return saved ? JSON.parse(saved) : INITIAL_TRAINERS;
   });
 
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(() => {
+    const saved = localStorage.getItem('smit_activity_logs');
+    return saved ? JSON.parse(saved) : INITIAL_ACTIVITY_LOGS;
+  });
+
   // Sync to localStorage
   useEffect(() => {
     localStorage.setItem('smit_lms_role', role);
@@ -190,6 +202,10 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     localStorage.setItem('smit_trainers', JSON.stringify(trainers));
   }, [trainers]);
+
+  useEffect(() => {
+    localStorage.setItem('smit_activity_logs', JSON.stringify(activityLogs));
+  }, [activityLogs]);
 
   const showToast = (message: string, type: 'success' | 'info' | 'warning' | 'error' = 'success') => {
     const id = Date.now().toString() + Math.random().toString(36).substring(2, 5);
@@ -283,6 +299,50 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       ? INITIAL_TEACHER_PROFILE
       : INITIAL_ADMIN_PROFILE;
 
+  const logActivity = (
+    action: ActivityActionType,
+    category: ActivityCategory,
+    title: string,
+    description: string,
+    targetId?: string,
+    targetName?: string,
+    metadata?: Record<string, string | number | boolean>
+  ) => {
+    const newLog: ActivityLog = {
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      action,
+      category,
+      title,
+      description,
+      performedBy: {
+        name: currentUser.name,
+        role: currentUser.role,
+        email: currentUser.email,
+      },
+      targetId,
+      targetName,
+      metadata,
+    };
+    setActivityLogs((prev) => [newLog, ...prev]);
+  };
+
+  const addActivityLog = (entry: Omit<ActivityLog, 'id' | 'timestamp'>) => {
+    const newLog: ActivityLog = {
+      ...entry,
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      timestamp: new Date().toISOString(),
+    };
+    setActivityLogs((prev) => [newLog, ...prev]);
+    showToast('Activity log recorded successfully', 'success');
+  };
+
+  const clearActivityLogs = () => {
+    setActivityLogs([]);
+    localStorage.removeItem('smit_activity_logs');
+    showToast('Activity log history cleared', 'info');
+  };
+
   const markAttendance = (
     records: { studentId: string; rollNumber: string; studentName: string; status: 'PRESENT' | 'ABSENT' | 'LEAVE'; date: string; classNumber: number }[]
   ) => {
@@ -297,6 +357,19 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
 
     setAttendance((prev) => [...newEntries, ...prev]);
+    logActivity(
+      'ATTENDANCE_MARKED',
+      'ATTENDANCE',
+      'Batch Attendance Recorded',
+      `Submitted class #${records[0]?.classNumber || 1} attendance for ${records.length} students on ${records[0]?.date || 'today'}.`,
+      undefined,
+      undefined,
+      {
+        totalRecords: records.length,
+        classNumber: records[0]?.classNumber || 1,
+        date: records[0]?.date || '',
+      }
+    );
     showToast(`Attendance marked successfully for ${records.length} students on ${records[0]?.date || 'today'}`, 'success');
   };
 
@@ -319,6 +392,15 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       prev.map((asg) =>
         asg.id === assignmentId ? { ...asg, status: 'SUBMITTED', totalSubmissions: (asg.totalSubmissions || 0) + 1 } : asg
       )
+    );
+    const targetAsg = assignments.find((a) => a.id === assignmentId);
+    logActivity(
+      'UPDATE',
+      'ASSIGNMENT',
+      'Assignment Solution Submitted',
+      `${INITIAL_STUDENT_PROFILE.name} submitted solution for "${targetAsg?.title || 'Assignment'}".`,
+      assignmentId,
+      targetAsg?.title
     );
     showToast('Assignment submitted successfully for evaluation!', 'success');
   };
@@ -348,6 +430,18 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         prev.map((asg) => (asg.id === sub.assignmentId ? { ...asg, status: status } : asg))
       );
     }
+    logActivity(
+      'ASSIGNMENT_GRADED',
+      'ASSIGNMENT',
+      `Assignment Evaluation: ${status}`,
+      `Graded submission for ${sub?.studentName || 'Student'} (${status}${score !== undefined ? ` - ${score}/100` : ''}).`,
+      submissionId,
+      sub?.studentName,
+      {
+        status,
+        score: score ?? 0,
+      }
+    );
     showToast(`Submission marked as ${status}`, 'success');
   };
 
@@ -360,18 +454,49 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       status: 'NOT SUBMITTED',
     };
     setAssignments((prev) => [asg, ...prev]);
+    logActivity(
+      'ASSIGNMENT_CREATED',
+      'ASSIGNMENT',
+      'New Assignment Published',
+      `Created and published "${asg.title}" for ${asg.batch} (Due: ${asg.dueDate}).`,
+      asg.id,
+      asg.title,
+      {
+        batch: asg.batch,
+        dueDate: asg.dueDate,
+        course: asg.course,
+      }
+    );
     showToast(`Assignment "${asg.title}" created successfully!`, 'success');
   };
 
   const updateAssignment = (id: string, update: Partial<Assignment>) => {
+    const existing = assignments.find((a) => a.id === id);
     setAssignments((prev) =>
       prev.map((asg) => (asg.id === id ? { ...asg, ...update } : asg))
+    );
+    logActivity(
+      'UPDATE',
+      'ASSIGNMENT',
+      'Assignment Details Modified',
+      `Updated assignment details for "${update.title || existing?.title || 'Assignment'}".`,
+      id,
+      update.title || existing?.title
     );
     showToast('Assignment updated successfully', 'info');
   };
 
   const deleteAssignment = (id: string) => {
+    const existing = assignments.find((a) => a.id === id);
     setAssignments((prev) => prev.filter((asg) => asg.id !== id));
+    logActivity(
+      'DELETE',
+      'ASSIGNMENT',
+      'Assignment Removed',
+      `Deleted assignment "${existing?.title || id}".`,
+      id,
+      existing?.title
+    );
     showToast('Assignment deleted', 'info');
   };
 
@@ -381,6 +506,19 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id: `q_${Date.now()}`,
     };
     setQuizzes((prev) => [quiz, ...prev]);
+    logActivity(
+      'QUIZ_CREATED',
+      'QUIZ',
+      'New Quiz Published',
+      `Created quiz assessment "${quiz.title}" (${quiz.questionsCount} questions, ${quiz.durationMinutes} mins).`,
+      quiz.id,
+      quiz.title,
+      {
+        course: quiz.course,
+        module: quiz.module,
+        status: quiz.status,
+      }
+    );
     showToast(`Quiz "${quiz.title}" created for ${quiz.course}`, 'success');
   };
 
@@ -417,6 +555,20 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setQuizResults((prev) => [newResult, ...prev]);
     }
 
+    const qz = quizzes.find((q) => q.id === quizId);
+    logActivity(
+      'UPDATE',
+      'QUIZ',
+      'Student Quiz Attempt Recorded',
+      `${INITIAL_STUDENT_PROFILE.name} attempted quiz "${qz?.title || 'Quiz'}" scoring ${scorePercentage}%.`,
+      quizId,
+      qz?.title,
+      {
+        scorePercentage,
+        passed,
+      }
+    );
+
     showToast(
       passed
         ? `Congratulations! Quiz passed with ${scorePercentage}%!`
@@ -434,12 +586,41 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
     };
     setStudents((prev) => [newStudent, ...prev]);
+    logActivity(
+      'CREATE',
+      'STUDENT',
+      'New Student Registered',
+      `Enrolled student ${newStudent.name} (Roll #${newStudent.rollNumber || 'N/A'}) into ${newStudent.course || 'Curriculum'}.`,
+      newStudent.id,
+      newStudent.name,
+      {
+        rollNumber: newStudent.rollNumber || '',
+        email: newStudent.email,
+        status: newStudent.status,
+        batch: newStudent.batch || '',
+      }
+    );
     showToast(`Student "${newStudent.name}" (Roll: ${newStudent.rollNumber}) added!`, 'success');
   };
 
   const updateStudentStatus = (studentId: string, status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED') => {
+    const targetStudent = students.find((s) => s.id === studentId);
+    const oldStatus = targetStudent?.status || 'UNKNOWN';
     setStudents((prev) =>
       prev.map((s) => (s.id === studentId ? { ...s, status } : s))
+    );
+    logActivity(
+      'STATUS_CHANGE',
+      'STUDENT',
+      'Student Status Modified',
+      `Changed status of ${targetStudent?.name || 'Student'} (Roll #${targetStudent?.rollNumber || 'N/A'}) from ${oldStatus} to ${status}.`,
+      studentId,
+      targetStudent?.name,
+      {
+        previousStatus: oldStatus,
+        newStatus: status,
+        rollNumber: targetStudent?.rollNumber || '',
+      }
     );
     showToast(`Student status updated to ${status}`, 'info');
   };
@@ -453,18 +634,54 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
     };
     setTrainers((prev) => [newTrainer, ...prev]);
+    logActivity(
+      'CREATE',
+      'TRAINER',
+      'New Trainer Registered',
+      `Enrolled trainer ${newTrainer.name} for ${newTrainer.assignedCourse}.`,
+      newTrainer.id,
+      newTrainer.name,
+      {
+        assignedCourse: newTrainer.assignedCourse,
+        assignedBatches: newTrainer.assignedBatches.join(', '),
+        totalStudents: newTrainer.totalStudents,
+        status: newTrainer.status,
+      }
+    );
     showToast(`Trainer "${newTrainer.name}" registered successfully!`, 'success');
   };
 
   const updateTrainer = (id: string, update: Partial<Trainer>) => {
+    const existing = trainers.find((t) => t.id === id);
     setTrainers((prev) =>
       prev.map((t) => (t.id === id ? { ...t, ...update } : t))
+    );
+    logActivity(
+      'UPDATE',
+      'TRAINER',
+      'Trainer Profile Updated',
+      `Updated profile details and allocations for ${update.name || existing?.name || 'Trainer'}.`,
+      id,
+      update.name || existing?.name,
+      {
+        assignedCourse: update.assignedCourse || existing?.assignedCourse || '',
+        status: update.status || existing?.status || 'ACTIVE',
+      }
     );
     showToast('Trainer details updated', 'info');
   };
 
   const deleteTrainer = (id: string) => {
+    const existing = trainers.find((t) => t.id === id);
     setTrainers((prev) => prev.filter((t) => t.id !== id));
+    logActivity(
+      'DELETE',
+      'TRAINER',
+      'Trainer Removed from Registry',
+      `Removed trainer record for ${existing?.name || id} from institutional registry.`,
+      id,
+      existing?.name
+    );
     showToast('Trainer removed from registry', 'info');
   };
 
@@ -494,6 +711,13 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setQuizzes(INITIAL_QUIZZES);
     setQuizResults(INITIAL_STUDENT_QUIZ_RESULTS);
     setTrainers(INITIAL_TRAINERS);
+    setActivityLogs(INITIAL_ACTIVITY_LOGS);
+    logActivity(
+      'SYSTEM_RESET',
+      'SYSTEM',
+      'System Master Data Reset',
+      'Reinitialized institutional database back to factory mock state.'
+    );
     showToast('Reset data to initial state', 'info');
   };
 
@@ -528,6 +752,7 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         quizResults,
         feeRecords,
         trainers,
+        activityLogs,
         notifications,
         showToast,
         removeToast,
@@ -544,6 +769,8 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addTrainer,
         updateTrainer,
         deleteTrainer,
+        addActivityLog,
+        clearActivityLogs,
         toggleTopicCompletion,
         resetAllData,
       }}

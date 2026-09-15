@@ -14,6 +14,7 @@ import {
   X,
   UserCheck,
   GraduationCap,
+  History,
   LogOut,
   User,
   Moon,
@@ -80,6 +81,7 @@ export const Sidebar: React.FC = () => {
   const adminNavItems: { id: AdminTab; label: string; icon: React.FC<{ className?: string }> }[] = [
     { id: 'trainers', label: 'Manage Trainers', icon: GraduationCap },
     { id: 'studentProgress', label: 'Student progress', icon: Award },
+    { id: 'activityLog', label: 'Activity Log', icon: History },
   ];
 
   return (

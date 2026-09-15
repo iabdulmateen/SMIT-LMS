@@ -8,6 +8,7 @@ import {
   StudentQuizResult,
   FeeRecord,
   Trainer,
+  ActivityLog,
 } from '../types';
 
 export const INITIAL_STUDENT_PROFILE: UserProfile = {
@@ -674,3 +675,143 @@ export const INITIAL_TRAINERS: Trainer[] = [
     joinedDate: 'Sep 2023',
   },
 ];
+
+export const INITIAL_ACTIVITY_LOGS: ActivityLog[] = [
+  {
+    id: 'act_01',
+    timestamp: new Date(Date.now() - 1000 * 60 * 18).toISOString(), // 18 mins ago
+    action: 'UPDATE',
+    category: 'TRAINER',
+    title: 'Trainer Profile Updated',
+    description: 'Updated Sir Muhammad Ali assigned batches and contact details.',
+    performedBy: {
+      name: 'Admin Secretariat',
+      role: 'admin',
+      email: 'admin.office@smit.edu.pk',
+    },
+    targetId: 'trn_01',
+    targetName: 'Sir Muhammad Ali',
+    metadata: {
+      course: 'Modern Web Application Development',
+      batches: 'Batch 20, Batch 21',
+      status: 'ACTIVE',
+    },
+  },
+  {
+    id: 'act_02',
+    timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(), // 45 mins ago
+    action: 'STATUS_CHANGE',
+    category: 'STUDENT',
+    title: 'Student Status Modified',
+    description: 'Changed status for student Hamza Farooq (Roll #777874) to ACTIVE after fee verification.',
+    performedBy: {
+      name: 'Admin Secretariat',
+      role: 'admin',
+      email: 'admin.office@smit.edu.pk',
+    },
+    targetId: 'std_02',
+    targetName: 'Hamza Farooq',
+    metadata: {
+      rollNumber: '777874',
+      previousStatus: 'INACTIVE',
+      newStatus: 'ACTIVE',
+    },
+  },
+  {
+    id: 'act_03',
+    timestamp: new Date(Date.now() - 1000 * 60 * 130).toISOString(), // ~2 hours ago
+    action: 'CREATE',
+    category: 'TRAINER',
+    title: 'New Trainer Registered',
+    description: 'Enrolled Sir Kashif Sulaiman as Lead Trainer for Cloud Native Applied Generative AI.',
+    performedBy: {
+      name: 'Admin Secretariat',
+      role: 'admin',
+      email: 'admin.office@smit.edu.pk',
+    },
+    targetId: 'trn_05',
+    targetName: 'Sir Kashif Sulaiman',
+    metadata: {
+      assignedCourse: 'Cloud Native Applied Generative AI',
+      batches: 'Batch 01, Batch 02',
+      experience: '7 Years',
+    },
+  },
+  {
+    id: 'act_04',
+    timestamp: new Date(Date.now() - 1000 * 60 * 320).toISOString(), // ~5 hours ago
+    action: 'ASSIGNMENT_CREATED',
+    category: 'ASSIGNMENT',
+    title: 'New Assignment Published',
+    description: 'Published Assignment #04: Responsive Grid Layout & Modern CSS to Batch 20.',
+    performedBy: {
+      name: 'Sir Muhammad Ali',
+      role: 'teacher',
+      email: 'ali.trainer@smit.edu.pk',
+    },
+    targetId: 'asg_04',
+    targetName: 'Responsive Grid Layout & Modern CSS',
+    metadata: {
+      batch: 'Batch 20',
+      dueDate: '2026-09-28',
+    },
+  },
+  {
+    id: 'act_05',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 14).toISOString(), // 14 hours ago
+    action: 'ATTENDANCE_MARKED',
+    category: 'ATTENDANCE',
+    title: 'Batch Attendance Recorded',
+    description: 'Submitted daily class attendance for Modern Web App Development (Class #42).',
+    performedBy: {
+      name: 'Sir Muhammad Ali',
+      role: 'teacher',
+      email: 'ali.trainer@smit.edu.pk',
+    },
+    metadata: {
+      classNumber: 42,
+      totalMarked: 18,
+      presentCount: 16,
+    },
+  },
+  {
+    id: 'act_06',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(), // yesterday
+    action: 'QUIZ_CREATED',
+    category: 'QUIZ',
+    title: 'New Quiz Published',
+    description: 'Created JavaScript Async & Promises Assessment for Batch 20 students.',
+    performedBy: {
+      name: 'Sir Muhammad Ali',
+      role: 'teacher',
+      email: 'ali.trainer@smit.edu.pk',
+    },
+    targetId: 'qz_02',
+    targetName: 'JavaScript Async & Promises',
+    metadata: {
+      durationMinutes: 20,
+      questionsCount: 10,
+    },
+  },
+  {
+    id: 'act_07',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // 2 days ago
+    action: 'CREATE',
+    category: 'STUDENT',
+    title: 'New Student Admitted',
+    description: 'Registered student ABDUL MATEEN AZEEMI (Roll #777873) in Batch 20.',
+    performedBy: {
+      name: 'Admin Secretariat',
+      role: 'admin',
+      email: 'admin.office@smit.edu.pk',
+    },
+    targetId: 'std_01',
+    targetName: 'ABDUL MATEEN AZEEMI',
+    metadata: {
+      rollNumber: '777873',
+      batch: '20',
+      campus: 'Zaitoon Ashraf IT Park',
+    },
+  },
+];
+

@@ -133,3 +133,41 @@ export interface Trainer {
   status: 'ACTIVE' | 'ON LEAVE' | 'INACTIVE';
   joinedDate: string;
 }
+
+export type ActivityActionType =
+  | 'CREATE'
+  | 'UPDATE'
+  | 'DELETE'
+  | 'STATUS_CHANGE'
+  | 'ATTENDANCE_MARKED'
+  | 'ASSIGNMENT_CREATED'
+  | 'ASSIGNMENT_GRADED'
+  | 'QUIZ_CREATED'
+  | 'SYSTEM_RESET'
+  | 'ADMIN_NOTE';
+
+export type ActivityCategory =
+  | 'TRAINER'
+  | 'STUDENT'
+  | 'ASSIGNMENT'
+  | 'QUIZ'
+  | 'ATTENDANCE'
+  | 'SYSTEM'
+  | 'GENERAL';
+
+export interface ActivityLog {
+  id: string;
+  timestamp: string;
+  action: ActivityActionType;
+  category: ActivityCategory;
+  title: string;
+  description: string;
+  performedBy: {
+    name: string;
+    role: Role;
+    email?: string;
+  };
+  targetId?: string;
+  targetName?: string;
+  metadata?: Record<string, string | number | boolean>;
+}
