@@ -1,33 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
-  <rect width="128" height="128" rx="28" fill="#FFFFFF" />
-  <g transform="translate(4, 8) scale(0.4)">
-    <!-- Graduation Cap on top of S -->
-    <g transform="translate(18, 5)">
-      <polygon points="40,2 15,15 40,26 65,15" fill="#0071BC" />
-      <path d="M23,19 L23,28 C23,34 57,34 57,28 L57,19 Z" fill="#005b96" />
-      <path d="M60,16 Q63,22 61,30" stroke="#0071BC" stroke-width="2.5" fill="none" stroke-linecap="round" />
-      <circle cx="61" cy="30" r="2.5" fill="#0071BC" />
-      <path d="M12,46 C12,26 68,26 68,46" stroke="#7CB342" stroke-width="6" fill="none" stroke-linecap="round" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <rect width="500" height="500" rx="100" fill="#ffffff" />
+  <g transform="translate(0, 90)">
+    <!-- Top Hat / Graduation Cap over S -->
+    <g transform="translate(18, -4)">
+      <!-- Cap Diamond / Mortarboard -->
+      <polygon points="106,30 38,58 106,86 174,58" fill="#0f75bc" />
+      <path d="M 68,60 Q 106,75 144,60" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.6" stroke-linecap="round"/>
+      <!-- Cap Skullcap / Base Band -->
+      <path d="M 62,68 L 62,88 C 62,104 150,104 150,88 L 150,68 C 132,76 80,76 62,68 Z" fill="#0f75bc" />
+      <circle cx="106" cy="58" r="3.5" fill="#0b5487" />
+      
+      <!-- Green Arch swooshing over S -->
+      <path d="M 28,142 C 28,78 72,50 148,78" stroke="#78be20" stroke-width="16" stroke-linecap="round" fill="none" />
     </g>
 
-    <!-- Letter S (Blue) -->
-    <path d="M52,55 C46,55 35,58 35,66 C35,74 58,74 58,82 C58,88 47,89 40,89 C33,89 25,87 20,84 L20,95 C25,98 34,100 42,100 C58,100 71,94 71,81 C71,71 48,70 48,64 C48,60 55,59 61,59 C67,59 74,61 78,63 L78,53 C72,51 63,49 52,55 Z" fill="#0071BC" />
+    <!-- Blue Letter S -->
+    <path d="M 125,116 C 96,116 60,126 60,162 C 60,198 126,198 126,220 C 126,234 108,238 92,238 C 72,238 52,230 40,220 L 40,248 C 54,256 74,262 96,262 C 128,262 156,246 156,218 C 156,178 90,178 90,158 C 90,144 104,140 120,140 C 136,140 152,146 162,152 L 162,124 C 150,118 138,116 125,116 Z" fill="#0f75bc" />
 
-    <!-- Letter M (Blue) -->
-    <path d="M85,50 L85,99 L98,99 L98,68 L114,99 L126,99 L142,68 L142,99 L155,99 L155,50 L137,50 L120,83 L103,50 Z" fill="#0071BC" />
+    <!-- Blue Letter M -->
+    <path d="M 178,120 L 208,120 L 244,204 L 280,120 L 310,120 L 310,258 L 282,258 L 282,168 L 254,232 L 234,232 L 206,168 L 206,258 L 178,258 Z" fill="#0f75bc" />
 
-    <!-- Letter I (Green Leaf with Dot) -->
-    <g transform="translate(162, 18)">
-      <circle cx="18" cy="12" r="11" fill="#7CB342" />
-      <path d="M11,32 C18,40 27,52 23,70 C21,78 14,81 10,81 C17,76 22,65 18,52 C15,42 9,35 11,32 Z" fill="#7CB342" />
-      <path d="M13,33 C10,48 10,65 24,81 L29,81 C18,65 16,48 17,33 Z" fill="#689F38" />
+    <!-- Letter I (Green Circle Dot & Styled Sprout Stem) -->
+    <g>
+      <circle cx="344" cy="78" r="23" fill="#78be20" />
+      <path d="M 328,120 L 364,120 L 364,258 L 328,258 Z" fill="#0f75bc" />
+      <path d="M 328,252 C 322,234 322,204 336,172 C 348,144 354,128 350,120 C 358,136 360,166 346,200 C 334,230 334,246 338,258 Z" fill="#ffffff" />
+      <path d="M 324,250 C 316,228 318,198 334,166 C 348,138 354,124 350,118 C 354,126 358,150 344,184 C 330,218 328,236 334,254 Z" fill="#78be20" />
     </g>
 
-    <!-- Letter T (Blue) -->
-    <path d="M202,50 L202,61 L220,61 L220,99 L234,99 L234,61 L252,61 L252,50 Z" fill="#0071BC" />
+    <!-- Blue Letter T -->
+    <path d="M 378,120 L 476,120 L 476,148 L 441,148 L 441,258 L 413,258 L 413,148 L 378,148 Z" fill="#0f75bc" />
 
-    <!-- Subtitle Text -->
-    <text x="135" y="118" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="900" letter-spacing="3.2" fill="#1A365D" text-anchor="middle">
+    <!-- Subtitle: SAYLANI MASS IT TRAINING -->
+    <text x="250" y="295" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="22" letter-spacing="4.5" fill="#111827" text-anchor="middle">
       SAYLANI MASS IT TRAINING
     </text>
   </g>
