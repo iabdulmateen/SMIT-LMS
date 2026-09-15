@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 120" width="100%" height="100%">
+  <!-- Graduation Cap on top of S -->
+  <g transform="translate(18, 5)">
+    <!-- Cap top diamond -->
+    <polygon points="40,2 15,15 40,26 65,15" fill="#0071BC" />
+    <!-- Cap skull cap underside -->
+    <path d="M23,19 L23,28 C23,34 57,34 57,28 L57,19 Z" fill="#005b96" />
+    <!-- Tassel -->
+    <path d="M60,16 Q63,22 61,30" stroke="#0071BC" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    <circle cx="61" cy="30" r="2.5" fill="#0071BC" />
+    <!-- Green arched swoosh over S -->
+    <path d="M12,46 C12,26 68,26 68,46" stroke="#7CB342" stroke-width="5" fill="none" stroke-linecap="round" />
+  </g>
+
+  <!-- Letter S (Blue) -->
+  <path d="M52,55 C46,55 35,58 35,66 C35,74 58,74 58,82 C58,88 47,89 40,89 C33,89 25,87 20,84 L20,95 C25,98 34,100 42,100 C58,100 71,94 71,81 C71,71 48,70 48,64 C48,60 55,59 61,59 C67,59 74,61 78,63 L78,53 C72,51 63,49 52,55 Z" fill="#0071BC" />
+
+  <!-- Letter M (Blue) -->
+  <path d="M85,50 L85,99 L98,99 L98,68 L114,99 L126,99 L142,68 L142,99 L155,99 L155,50 L137,50 L120,83 L103,50 Z" fill="#0071BC" />
+
+  <!-- Letter I (Green Leaf/Sprout Shape with Dot) -->
+  <g transform="translate(162, 18)">
+    <!-- Green Dot -->
+    <circle cx="18" cy="12" r="10" fill="#7CB342" />
+    <!-- Green Organic Leaf Body of I -->
+    <path d="M11,32 C18,40 27,52 23,70 C21,78 14,81 10,81 C17,76 22,65 18,52 C15,42 9,35 11,32 Z" fill="#7CB342" />
+    <path d="M13,33 C10,48 10,65 24,81 L29,81 C18,65 16,48 17,33 Z" fill="#689F38" />
+  </g>
+
+  <!-- Letter T (Blue) -->
+  <path d="M202,50 L202,61 L220,61 L220,99 L234,99 L234,61 L252,61 L252,50 Z" fill="#0071BC" />
+
+  <!-- Subtitle Text: SAYLANI MASS IT TRAINING -->
+  <text x="135" y="114" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="900" letter-spacing="3.2" fill="#1A365D" text-anchor="middle">
+    SAYLANI MASS IT TRAINING
+  </text>
+</svg>
