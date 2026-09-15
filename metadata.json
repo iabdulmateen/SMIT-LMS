@@ -1,0 +1,6 @@
+{
+  "name": "SMIT Learning Management System",
+  "description": "Multi-role mobile-first Learning Management System (LMS) for Students, Teachers, and Admins featuring attendance tracking, assignments, quizzes, and progress analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
