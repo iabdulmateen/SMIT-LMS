@@ -146,12 +146,32 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [assignments, setAssignments] = useState<Assignment[]>(() => {
     const saved = localStorage.getItem('smit_assignments');
-    return saved ? JSON.parse(saved) : INITIAL_ASSIGNMENTS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= INITIAL_ASSIGNMENTS.length) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Failed to parse smit_assignments', e);
+      }
+    }
+    return INITIAL_ASSIGNMENTS;
   });
 
   const [submissions, setSubmissions] = useState<Submission[]>(() => {
     const saved = localStorage.getItem('smit_submissions');
-    return saved ? JSON.parse(saved) : INITIAL_SUBMISSIONS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= INITIAL_SUBMISSIONS.length) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Failed to parse smit_submissions', e);
+      }
+    }
+    return INITIAL_SUBMISSIONS;
   });
 
   const [quizzes, setQuizzes] = useState<Quiz[]>(() => {
