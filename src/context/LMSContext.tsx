@@ -121,7 +121,17 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Stored state items
   const [students, setStudents] = useState<UserProfile[]>(() => {
     const saved = localStorage.getItem('smit_students');
-    return saved ? JSON.parse(saved) : ALL_STUDENTS_LIST;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= ALL_STUDENTS_LIST.length) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Failed to parse smit_students', e);
+      }
+    }
+    return ALL_STUDENTS_LIST;
   });
 
   const [modules, setModules] = useState<CourseModule[]>(() => {
