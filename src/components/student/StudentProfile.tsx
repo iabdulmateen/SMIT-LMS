@@ -83,14 +83,25 @@ export const StudentProfile: React.FC = () => {
               </div>
             </div>
 
-            {/* Edit Profile Button */}
-            <button
-              onClick={() => setIsEditModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1c64f2] hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-xs transition self-start sm:self-auto cursor-pointer"
-            >
-              <Edit3 className="w-3.5 h-3.5" />
-              <span>Edit Profile</span>
-            </button>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <button
+                onClick={() => setIsEditModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1c64f2] hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-xs transition cursor-pointer"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Edit Profile</span>
+              </button>
+
+              <button
+                onClick={logout}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#dc2626] hover:bg-red-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-xs transition cursor-pointer"
+                title="Logout"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -15,17 +15,18 @@ import {
   BookOpen,
   Briefcase,
   IdCard,
+  LogOut,
 } from 'lucide-react';
 
 export const TeacherProfile: React.FC = () => {
-  const { currentUser, updateUserProfile, showToast, students } = useLMS();
+  const { currentUser, updateUserProfile, showToast, students, logout } = useLMS();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: currentUser.name || 'Sir Muhammad Ali',
+    name: currentUser.name || 'Sir Syed Muzammil Javed',
     email: currentUser.email || 'ali.trainer@smit.edu.pk',
     phone: currentUser.phone || '+92 321 9876543',
-    address: currentUser.address || 'Saylani Head Office / Bahadurabad Campus, Karachi',
+    address: currentUser.address || 'Saylani Zaitoon Ashraf IT Park , Karachi',
     gender: currentUser.gender || 'Male',
     dob: currentUser.dob || 'March 14, 1990',
     qualification: currentUser.qualification || 'MS Computer Science',
@@ -101,14 +102,25 @@ export const TeacherProfile: React.FC = () => {
               </div>
             </div>
 
-            {/* Edit Profile Button */}
-            <button
-              onClick={() => setIsEditModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1c64f2] hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-xs transition self-start sm:self-auto cursor-pointer"
-            >
-              <Edit3 className="w-3.5 h-3.5" />
-              <span>Edit Profile</span>
-            </button>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <button
+                onClick={() => setIsEditModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1c64f2] hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-xs transition cursor-pointer"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Edit Profile</span>
+              </button>
+
+              <button
+                onClick={logout}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#dc2626] hover:bg-red-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-xs transition cursor-pointer"
+                title="Logout"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -240,6 +252,17 @@ export const TeacherProfile: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Bottom Logout Button */}
+      <div className="flex justify-end pt-2">
+        <button
+          onClick={logout}
+          className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#dc2626] hover:bg-red-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Logout</span>
+        </button>
       </div>
 
       {/* Edit Profile Modal */}

@@ -13,10 +13,11 @@ import {
   Shield,
   History,
   IdCard,
+  LogOut,
 } from 'lucide-react';
 
 export const AdminProfile: React.FC = () => {
-  const { currentUser, updateUserProfile, showToast, students, trainers, activityLogs } = useLMS();
+  const { currentUser, updateUserProfile, showToast, students, trainers, activityLogs, logout } = useLMS();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -90,13 +91,24 @@ export const AdminProfile: React.FC = () => {
               </div>
             </div>
 
-            <button
-              onClick={() => setIsEditModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-xs transition self-start sm:self-auto cursor-pointer"
-            >
-              <Edit3 className="w-3.5 h-3.5" />
-              <span>Edit Profile</span>
-            </button>
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <button
+                onClick={() => setIsEditModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-xs transition cursor-pointer"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Edit Profile</span>
+              </button>
+
+              <button
+                onClick={logout}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#dc2626] hover:bg-red-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-xs transition cursor-pointer"
+                title="Logout"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -168,6 +180,17 @@ export const AdminProfile: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Bottom Logout Button */}
+      <div className="flex justify-end pt-2">
+        <button
+          onClick={logout}
+          className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#dc2626] hover:bg-red-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Logout</span>
+        </button>
       </div>
 
       {isEditModalOpen && (
