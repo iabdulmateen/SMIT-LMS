@@ -26,11 +26,13 @@ import { TeacherAttendance } from './components/teacher/TeacherAttendance';
 import { TeacherAssignments } from './components/teacher/TeacherAssignments';
 import { TeacherQuizzes } from './components/teacher/TeacherQuizzes';
 import { TeacherCourseProgress } from './components/teacher/TeacherCourseProgress';
+import { TeacherProfile } from './components/teacher/TeacherProfile';
 
 // Admin Components
 import { AdminManageTrainers } from './components/admin/AdminManageTrainers';
 import { AdminStudentProgress } from './components/admin/AdminStudentProgress';
 import { AdminActivityLog } from './components/admin/AdminActivityLog';
+import { AdminProfile } from './components/admin/AdminProfile';
 
 const MainLayout: React.FC = () => {
   const { isAuthenticated, role, studentTab, teacherTab, adminTab, sidebarOpen } = useLMS();
@@ -78,6 +80,7 @@ const MainLayout: React.FC = () => {
               {teacherTab === 'assignments' && <TeacherAssignments />}
               {teacherTab === 'quizzes' && <TeacherQuizzes />}
               {teacherTab === 'progress' && <TeacherCourseProgress />}
+              {teacherTab === 'profile' && <TeacherProfile />}
             </div>
           )}
 
@@ -87,6 +90,7 @@ const MainLayout: React.FC = () => {
               {adminTab === 'trainers' && <AdminManageTrainers />}
               {adminTab === 'studentProgress' && <AdminStudentProgress />}
               {adminTab === 'activityLog' && <AdminActivityLog />}
+              {adminTab === 'profile' && <AdminProfile />}
             </div>
           )}
         </main>

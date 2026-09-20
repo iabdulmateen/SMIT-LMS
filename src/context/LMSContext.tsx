@@ -31,8 +31,8 @@ import {
 } from '../data/mockData';
 
 export type StudentTab = 'dashboard' | 'progress' | 'attendance' | 'payment' | 'assignment' | 'quiz' | 'profile';
-export type TeacherTab = 'students' | 'attendance' | 'assignments' | 'quizzes' | 'progress';
-export type AdminTab = 'trainers' | 'studentProgress' | 'activityLog';
+export type TeacherTab = 'students' | 'attendance' | 'assignments' | 'quizzes' | 'progress' | 'profile';
+export type AdminTab = 'trainers' | 'studentProgress' | 'activityLog' | 'profile';
 
 interface ToastNotification {
   id: string;
@@ -311,20 +311,58 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsDarkMode((prev) => !prev);
   };
 
+  const [customTeacherProfile, setCustomTeacherProfile] = useState<UserProfile>(() => {
+    const saved = localStorage.getItem('smit_current_teacher');
+    if (saved) {
+      try {
+        return { ...INITIAL_TEACHER_PROFILE, ...JSON.parse(saved) };
+      } catch (e) {
+        return INITIAL_TEACHER_PROFILE;
+      }
+    }
+    return INITIAL_TEACHER_PROFILE;
+  });
+
+  const [customAdminProfile, setCustomAdminProfile] = useState<UserProfile>(() => {
+    const saved = localStorage.getItem('smit_current_admin');
+    if (saved) {
+      try {
+        return { ...INITIAL_ADMIN_PROFILE, ...JSON.parse(saved) };
+      } catch (e) {
+        return INITIAL_ADMIN_PROFILE;
+      }
+    }
+    return INITIAL_ADMIN_PROFILE;
+  });
+
   const updateUserProfile = (data: Partial<UserProfile>) => {
-    setCustomStudentProfile((prev) => {
-      const updated = { ...prev, ...data };
-      localStorage.setItem('smit_current_student', JSON.stringify(updated));
-      return updated;
-    });
+    if (role === 'student') {
+      setCustomStudentProfile((prev) => {
+        const updated = { ...prev, ...data };
+        localStorage.setItem('smit_current_student', JSON.stringify(updated));
+        return updated;
+      });
+    } else if (role === 'teacher') {
+      setCustomTeacherProfile((prev) => {
+        const updated = { ...prev, ...data };
+        localStorage.setItem('smit_current_teacher', JSON.stringify(updated));
+        return updated;
+      });
+    } else {
+      setCustomAdminProfile((prev) => {
+        const updated = { ...prev, ...data };
+        localStorage.setItem('smit_current_admin', JSON.stringify(updated));
+        return updated;
+      });
+    }
   };
 
   const currentUser: UserProfile =
     role === 'student'
       ? customStudentProfile
       : role === 'teacher'
-      ? INITIAL_TEACHER_PROFILE
-      : INITIAL_ADMIN_PROFILE;
+      ? customTeacherProfile
+      : customAdminProfile;
 
   const logActivity = (
     action: ActivityActionType,

@@ -213,9 +213,9 @@ export const Sidebar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
-                  if (role === 'student') {
-                    setStudentTab('profile');
-                  }
+                  if (role === 'student') setStudentTab('profile');
+                  if (role === 'teacher') setTeacherTab('profile');
+                  if (role === 'admin') setAdminTab('profile');
                   setShowProfileMenu(false);
                   if (window.innerWidth < 1024) {
                     setSidebarOpen(false);

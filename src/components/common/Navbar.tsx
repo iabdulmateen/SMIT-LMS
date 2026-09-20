@@ -59,6 +59,10 @@ export const Navbar: React.FC = () => {
           return 'Assignments Management';
         case 'quizzes':
           return 'Quizzes Management';
+        case 'progress':
+          return 'Course Progress';
+        case 'profile':
+          return 'Profile';
         default:
           return '';
       }
@@ -68,11 +72,20 @@ export const Navbar: React.FC = () => {
           return 'Manage Trainers';
         case 'studentProgress':
           return 'Student Progress Analytics';
+        case 'activityLog':
+          return 'Activity Logs';
+        case 'profile':
+          return 'Profile';
         default:
           return '';
       }
     }
   };
+
+  const isProfileActive =
+    (role === 'student' && studentTab === 'profile') ||
+    (role === 'teacher' && teacherTab === 'profile') ||
+    (role === 'admin' && adminTab === 'profile');
 
   const activeTitle = getActiveViewTitle();
 
@@ -86,8 +99,10 @@ export const Navbar: React.FC = () => {
               type="button"
               onClick={() => {
                 if (role === 'student') setStudentTab('profile');
+                if (role === 'teacher') setTeacherTab('profile');
+                if (role === 'admin') setAdminTab('profile');
               }}
-              className="relative p-0.5 focus:outline-hidden"
+              className="relative p-0.5 focus:outline-hidden cursor-pointer"
               title="View Profile"
             >
               <img
@@ -109,7 +124,7 @@ export const Navbar: React.FC = () => {
                 Home
               </button>
 
-              {studentTab === 'profile' ? (
+              {isProfileActive ? (
                 <>
                   <ChevronRight className="w-3.5 h-3.5 mx-1.5 text-slate-400 dark:text-slate-600 flex-shrink-0" />
                   <span className="text-slate-800 dark:text-slate-100 font-semibold">Profile</span>
