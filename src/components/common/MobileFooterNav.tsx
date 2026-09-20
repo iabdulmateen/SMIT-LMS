@@ -90,7 +90,11 @@ export const MobileFooterNav: React.FC = () => {
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
-            <div className="p-1 rounded-lg">
+            <div
+              className={`p-1 rounded-lg transition-transform ${
+                isPayment ? 'bg-blue-50 dark:bg-blue-900/40' : ''
+              }`}
+            >
               <Wallet className="w-5 h-5 stroke-[2]" />
             </div>
             <span className="text-[11px] leading-tight tracking-tight mt-0.5 select-none">
@@ -108,8 +112,12 @@ export const MobileFooterNav: React.FC = () => {
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
-            <div className="p-1 rounded-lg">
-              <GraduationCap className="w-5 h-5 stroke-[2]" />
+            <div
+              className={`p-1 rounded-lg transition-transform ${
+                isQuiz ? 'bg-blue-50 dark:bg-blue-900/40' : ''
+              }`}
+            >
+              <GraduationCap className="w-5 h-5 stroke-[2.2] scale-115" />
             </div>
             <span className="text-[11px] leading-tight tracking-tight mt-0.5 select-none">
               Quiz
@@ -126,7 +134,11 @@ export const MobileFooterNav: React.FC = () => {
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
-            <div className="p-1 rounded-lg">
+            <div
+              className={`p-1 rounded-lg transition-transform ${
+                isProgress ? 'bg-blue-50 dark:bg-blue-900/40' : ''
+              }`}
+            >
               <BookOpen className="w-5 h-5 stroke-[2]" />
             </div>
             <span className="text-[11px] leading-tight tracking-tight mt-0.5 select-none">
