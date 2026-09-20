@@ -189,7 +189,22 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [trainers, setTrainers] = useState<Trainer[]>(() => {
     const saved = localStorage.getItem('smit_trainers');
-    return saved ? JSON.parse(saved) : INITIAL_TRAINERS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.map((t: Trainer) =>
+            t.assignedCourse === 'Modern Web Application Development' &&
+            (t.name === 'Sir Muhammad Ali' || t.name === 'Sir Syed Muzammil Javed')
+              ? { ...t, name: 'S Muzammil Javed', email: 'muzammil.javed@smit.edu.pk' }
+              : t
+          );
+        }
+      } catch (e) {
+        console.error('Failed to parse smit_trainers', e);
+      }
+    }
+    return INITIAL_TRAINERS;
   });
 
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(() => {
@@ -315,7 +330,11 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem('smit_current_teacher');
     if (saved) {
       try {
-        return { ...INITIAL_TEACHER_PROFILE, ...JSON.parse(saved) };
+        const parsed = JSON.parse(saved);
+        if (parsed.name === 'Sir Muhammad Ali' || parsed.name === 'Sir Syed Muzammil Javed') {
+          parsed.name = 'S Muzammil Javed';
+        }
+        return { ...INITIAL_TEACHER_PROFILE, ...parsed };
       } catch (e) {
         return INITIAL_TEACHER_PROFILE;
       }

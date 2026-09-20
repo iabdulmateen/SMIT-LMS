@@ -33,12 +33,13 @@ export const INITIAL_STUDENT_PROFILE: UserProfile = {
 
 export const INITIAL_TEACHER_PROFILE: UserProfile = {
   id: 'tch_01',
-  name: 'Sir Muhammad Ali',
-  email: 'ali.trainer@smit.edu.pk',
+  name: 'S Muzammil Javed',
+  email: 'muzammil.javed@smit.edu.pk',
   role: 'teacher',
   avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
   course: 'Modern Web Application Development',
   phone: '+92 321 9876543',
+  address: 'Saylani Zaitoon Ashraf IT Park, Karachi',
   status: 'ACTIVE',
 };
 
@@ -1254,8 +1255,8 @@ export const INITIAL_FEE_RECORDS: FeeRecord[] = [
 export const INITIAL_TRAINERS: Trainer[] = [
   {
     id: 'trn_01',
-    name: 'Sir Muhammad Ali',
-    email: 'ali.trainer@smit.edu.pk',
+    name: 'S Muzammil Javed',
+    email: 'muzammil.javed@smit.edu.pk',
     phone: '+92 321 9876543',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     assignedCourse: 'Modern Web Application Development',
@@ -1326,14 +1327,14 @@ export const INITIAL_ACTIVITY_LOGS: ActivityLog[] = [
     action: 'UPDATE',
     category: 'TRAINER',
     title: 'Trainer Profile Updated',
-    description: 'Updated Sir Muhammad Ali assigned batches and contact details.',
+    description: 'Updated S Muzammil Javed assigned batches and contact details.',
     performedBy: {
       name: 'Admin Secretariat',
       role: 'admin',
       email: 'admin.office@smit.edu.pk',
     },
     targetId: 'trn_01',
-    targetName: 'Sir Muhammad Ali',
+    targetName: 'S Muzammil Javed',
     metadata: {
       course: 'Modern Web Application Development',
       batches: 'Batch 20, Batch 21',
@@ -1388,9 +1389,9 @@ export const INITIAL_ACTIVITY_LOGS: ActivityLog[] = [
     title: 'New Assignment Published',
     description: 'Published Assignment #04: Responsive Grid Layout & Modern CSS to Batch 20.',
     performedBy: {
-      name: 'Sir Muhammad Ali',
+      name: 'S Muzammil Javed',
       role: 'teacher',
-      email: 'ali.trainer@smit.edu.pk',
+      email: 'muzammil.javed@smit.edu.pk',
     },
     targetId: 'asg_04',
     targetName: 'Responsive Grid Layout & Modern CSS',
@@ -1407,9 +1408,9 @@ export const INITIAL_ACTIVITY_LOGS: ActivityLog[] = [
     title: 'Batch Attendance Recorded',
     description: 'Submitted daily class attendance for Modern Web App Development (Class #42).',
     performedBy: {
-      name: 'Sir Muhammad Ali',
+      name: 'S Muzammil Javed',
       role: 'teacher',
-      email: 'ali.trainer@smit.edu.pk',
+      email: 'muzammil.javed@smit.edu.pk',
     },
     metadata: {
       classNumber: 42,
@@ -1425,9 +1426,9 @@ export const INITIAL_ACTIVITY_LOGS: ActivityLog[] = [
     title: 'New Quiz Published',
     description: 'Created JavaScript Async & Promises Assessment for Batch 20 students.',
     performedBy: {
-      name: 'Sir Muhammad Ali',
+      name: 'S Muzammil Javed',
       role: 'teacher',
-      email: 'ali.trainer@smit.edu.pk',
+      email: 'muzammil.javed@smit.edu.pk',
     },
     targetId: 'qz_02',
     targetName: 'JavaScript Async & Promises',

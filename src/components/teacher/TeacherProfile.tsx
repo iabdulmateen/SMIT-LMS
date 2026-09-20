@@ -23,10 +23,10 @@ export const TeacherProfile: React.FC = () => {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: currentUser.name || 'Sir Syed Muzammil Javed',
-    email: currentUser.email || 'ali.trainer@smit.edu.pk',
+    name: currentUser.name || 'S Muzammil Javed',
+    email: currentUser.email || 'muzammil.javed@smit.edu.pk',
     phone: currentUser.phone || '+92 321 9876543',
-    address: currentUser.address || 'Saylani Zaitoon Ashraf IT Park , Karachi',
+    address: currentUser.address || 'Saylani Zaitoon Ashraf IT Park, Karachi',
     gender: currentUser.gender || 'Male',
     dob: currentUser.dob || 'March 14, 1990',
     qualification: currentUser.qualification || 'MS Computer Science',
