@@ -1,409 +1,415 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useLMS } from '../../context/LMSContext';
+import { TeacherHeader } from './TeacherHeader';
 import {
   Calendar,
-  CheckCheck,
-  Save,
-  Users,
-  Clock,
   CheckCircle2,
   XCircle,
   AlertCircle,
-  Search,
+  Clock,
   ChevronLeft,
   ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
+  CheckCheck,
+  RotateCcw,
+  Save,
 } from 'lucide-react';
 
 export const TeacherAttendance: React.FC = () => {
-  const { students, markAttendance, showToast } = useLMS();
+  const { students, attendance, markAttendance, showToast } = useLMS();
 
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
-  );
-  const [selectedClassNumber, setSelectedClassNumber] = useState<number>(7);
-  const [selectedBatch, setSelectedBatch] = useState<string>('Batch 20');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  // Date selection (Matching Screenshot 1: "Select a Date" e.g. Tue Sep 15 2026)
+  const [selectedDate, setSelectedDate] = useState<string>('2026-09-15');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(8);
+  const [pageSize, setPageSize] = useState<number>(10);
 
-  // Local state for daily marking
-  const [dailyStatus, setDailyStatus] = useState<
-    Record<string, 'PRESENT' | 'ABSENT' | 'LEAVE'>
+  // Attendance map for currently selected date: studentId -> 'PRESENT' | 'ABSENT' | 'LEAVE' | 'NOT_MARKED'
+  const [statusMap, setStatusMap] = useState<
+    Record<string, 'PRESENT' | 'ABSENT' | 'LEAVE' | 'NOT_MARKED'>
   >(() => {
-    const initial: Record<string, 'PRESENT' | 'ABSENT' | 'LEAVE'> = {};
+    const map: Record<string, 'PRESENT' | 'ABSENT' | 'LEAVE' | 'NOT_MARKED'> = {};
     students.forEach((s) => {
-      initial[s.id] = 'PRESENT';
+      // Check if already in attendance state
+      const existing = attendance.find(
+        (a) => a.studentId === s.id && a.date.includes('2026-09-15')
+      );
+      map[s.id] = existing ? existing.status : 'NOT_MARKED';
     });
-    return initial;
+    return map;
   });
 
-  const filteredStudents = students.filter((s) => {
-    const matchesSearch =
-      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (s.rollNumber && s.rollNumber.includes(searchQuery));
-    return matchesSearch;
-  });
+  // Calculate top 4 metrics matching Screenshot 1
+  const totalStudentsCount = students.length;
+  const presentCount = Object.values(statusMap).filter((s) => s === 'PRESENT').length;
+  const absentCount = Object.values(statusMap).filter((s) => s === 'ABSENT').length;
+  const leaveCount = Object.values(statusMap).filter((s) => s === 'LEAVE').length;
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, pageSize]);
+  const totalPages = Math.max(1, Math.ceil(students.length / pageSize));
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, students.length);
+  const currentStudents = students.slice(startIndex, endIndex);
 
-  const totalPages = Math.max(1, Math.ceil(filteredStudents.length / pageSize));
-  const validCurrentPage = Math.min(currentPage, totalPages);
-  const startIndex = (validCurrentPage - 1) * pageSize;
-  const endIndex = Math.min(startIndex + pageSize, filteredStudents.length);
-  const paginatedStudents = filteredStudents.slice(startIndex, endIndex);
-
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      if (validCurrentPage <= 3) {
-        pages.push(1, 2, 3, 4, '...', totalPages);
-      } else if (validCurrentPage >= totalPages - 2) {
-        pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        pages.push(1, '...', validCurrentPage - 1, validCurrentPage, validCurrentPage + 1, '...', totalPages);
-      }
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
     }
-    return pages;
   };
 
-  const handleStatusChange = (
-    studentId: string,
-    status: 'PRESENT' | 'ABSENT' | 'LEAVE'
-  ) => {
-    setDailyStatus((prev) => ({ ...prev, [studentId]: status }));
-  };
-
-  const handleMarkAll = (status: 'PRESENT' | 'ABSENT' | 'LEAVE') => {
-    const updated: Record<string, 'PRESENT' | 'ABSENT' | 'LEAVE'> = {};
-    students.forEach((s) => {
-      updated[s.id] = status;
+  const handleToggleStatus = (studentId: string) => {
+    setStatusMap((prev) => {
+      const current = prev[studentId] || 'NOT_MARKED';
+      let next: 'PRESENT' | 'ABSENT' | 'LEAVE' | 'NOT_MARKED';
+      if (current === 'NOT_MARKED') next = 'PRESENT';
+      else if (current === 'PRESENT') next = 'ABSENT';
+      else if (current === 'ABSENT') next = 'LEAVE';
+      else next = 'NOT_MARKED';
+      return { ...prev, [studentId]: next };
     });
-    setDailyStatus(updated);
-    showToast(`Marked all ${students.length} students as ${status}`, 'info');
+  };
+
+  const handleSetStatus = (studentId: string, status: 'PRESENT' | 'ABSENT' | 'LEAVE' | 'NOT_MARKED') => {
+    setStatusMap((prev) => ({ ...prev, [studentId]: status }));
+  };
+
+  const handleMarkAllPresent = () => {
+    setStatusMap((prev) => {
+      const updated = { ...prev };
+      students.forEach((s) => {
+        updated[s.id] = 'PRESENT';
+      });
+      return updated;
+    });
+    showToast('Marked all students as Present for this session', 'info');
+  };
+
+  const handleResetAttendance = () => {
+    setStatusMap((prev) => {
+      const updated = { ...prev };
+      students.forEach((s) => {
+        updated[s.id] = 'NOT_MARKED';
+      });
+      return updated;
+    });
+    showToast('Cleared attendance marks for this session', 'info');
   };
 
   const handleSaveAttendance = () => {
-    const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    const records = students
+      .filter((s) => statusMap[s.id] && statusMap[s.id] !== 'NOT_MARKED')
+      .map((s) => ({
+        studentId: s.id,
+        rollNumber: s.rollNumber || '467564',
+        studentName: s.name,
+        status: statusMap[s.id] as 'PRESENT' | 'ABSENT' | 'LEAVE',
+        date: selectedDate,
+        classNumber: 12,
+      }));
 
-    const records = students.map((s) => ({
-      studentId: s.id,
-      rollNumber: s.rollNumber || 'N/A',
-      studentName: s.name,
-      status: dailyStatus[s.id] || 'PRESENT',
-      date: formattedDate,
-      classNumber: selectedClassNumber,
-    }));
+    if (records.length === 0) {
+      showToast('Please mark at least one student before saving.', 'warning');
+      return;
+    }
 
     markAttendance(records);
+    showToast(`Attendance saved successfully for ${records.length} students!`, 'success');
   };
 
-  // Summary counts
-  const presentCount = Object.values(dailyStatus).filter((s) => s === 'PRESENT').length;
-  const absentCount = Object.values(dailyStatus).filter((s) => s === 'ABSENT').length;
-  const leaveCount = Object.values(dailyStatus).filter((s) => s === 'LEAVE').length;
+  // Format date nicely like "Tue Sep 15 2026"
+  const formattedDateDisplay = useMemo(() => {
+    try {
+      const d = new Date(selectedDate);
+      return d.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    } catch {
+      return 'Tue Sep 15 2026';
+    }
+  }, [selectedDate]);
+
+  const dateSelectorControl = (
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+      <div className="text-right">
+        <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+          Select a Date
+        </label>
+        <div className="relative inline-flex items-center">
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
+          />
+        </div>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="space-y-6">
-      {/* Top Header Card with Controls */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 shadow-2xs space-y-4 transition-colors">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-5">
+      <TeacherHeader rightAction={dateSelectorControl} />
+
+      {/* 4 Summary Stat Cards (Matching Screenshot 1 1:1) */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+        {/* Total Students */}
+        <div className="bg-white dark:bg-slate-800/80 rounded-2xl p-4 sm:p-5 border border-slate-100 dark:border-slate-800 shadow-2xs flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Mark Class Attendance</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Record daily lecture attendance for enrolled batch trainees ({students.length} students total).
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Total Students
+            </span>
+            <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">
+              {totalStudentsCount}
             </p>
           </div>
-
-          <button
-            onClick={handleSaveAttendance}
-            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-xs flex items-center gap-2 transition self-start sm:self-auto cursor-pointer"
-          >
-            <Save className="w-4 h-4" />
-            <span>Save & Record Attendance</span>
-          </button>
+          <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700/50 text-slate-400 flex items-center justify-center flex-shrink-0">
+            <Clock className="w-5 h-5 text-slate-400" />
+          </div>
         </div>
 
-        {/* Date, Class # & Batch Selectors */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+        {/* Present */}
+        <div className="bg-white dark:bg-slate-800/80 rounded-2xl p-4 sm:p-5 border border-slate-100 dark:border-slate-800 shadow-2xs flex items-center justify-between">
           <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-              Lecture Date
-            </label>
-            <div className="relative">
-              <Calendar className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-              />
-            </div>
+            <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {presentCount}
+            </p>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Present
+            </span>
           </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-              Class Session #
-            </label>
-            <input
-              type="number"
-              min={1}
-              max={150}
-              value={selectedClassNumber}
-              onChange={(e) => setSelectedClassNumber(Number(e.target.value))}
-              className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-            />
+          <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+            <CheckCircle2 className="w-5 h-5" />
           </div>
+        </div>
 
+        {/* Absent */}
+        <div className="bg-white dark:bg-slate-800/80 rounded-2xl p-4 sm:p-5 border border-slate-100 dark:border-slate-800 shadow-2xs flex items-center justify-between">
           <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-              Active Batch
-            </label>
-            <select
-              value={selectedBatch}
-              onChange={(e) => setSelectedBatch(e.target.value)}
-              className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
-            >
-              <option>Batch 20 (Modern Web App Dev)</option>
-              <option>Batch 21 (Front-End React)</option>
-              <option>Batch 19 (MERN Stack)</option>
-            </select>
+            <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {absentCount}
+            </p>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Absent
+            </span>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-500 flex items-center justify-center flex-shrink-0">
+            <XCircle className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* Leave */}
+        <div className="bg-white dark:bg-slate-800/80 rounded-2xl p-4 sm:p-5 border border-slate-100 dark:border-slate-800 shadow-2xs flex items-center justify-between">
+          <div>
+            <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {leaveCount}
+            </p>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Leave
+            </span>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-600 flex items-center justify-center flex-shrink-0">
+            <AlertCircle className="w-5 h-5" />
           </div>
         </div>
       </div>
 
-      {/* Quick Status Bar & Quick Action Buttons */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors">
-        <div className="flex items-center gap-4 text-xs font-semibold">
-          <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> {presentCount} Present
-          </span>
-          <span className="flex items-center gap-1.5 text-rose-700 dark:text-rose-400">
-            <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" /> {absentCount} Absent
-          </span>
-          <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400">
-            <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" /> {leaveCount} Leave
-          </span>
-        </div>
-
+      {/* Quick Action Tools Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-800/80 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-2">
           <button
-            onClick={() => handleMarkAll('PRESENT')}
-            className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-900/60 rounded-lg text-xs font-bold transition cursor-pointer"
+            onClick={handleMarkAllPresent}
+            className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"
           >
+            <CheckCheck className="w-3.5 h-3.5" />
             Mark All Present
           </button>
           <button
-            onClick={() => handleMarkAll('ABSENT')}
-            className="px-3 py-1.5 bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 hover:bg-rose-200 dark:hover:bg-rose-900/60 rounded-lg text-xs font-bold transition cursor-pointer"
+            onClick={handleResetAttendance}
+            className="px-3 py-1.5 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"
           >
-            Mark All Absent
+            <RotateCcw className="w-3.5 h-3.5" />
+            Clear Marks
           </button>
         </div>
+
+        <button
+          onClick={handleSaveAttendance}
+          className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition"
+        >
+          <Save className="w-3.5 h-3.5" />
+          Save Attendance ({presentCount + absentCount + leaveCount} Marked)
+        </button>
       </div>
 
-      {/* Search Bar for Quick Find */}
-      <div className="relative">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Filter students by name or roll number for attendance..."
-          className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-xl text-xs sm:text-sm focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-2xs transition"
-        />
-      </div>
-
-      {/* Table (Matching Prompt: Roll number, Full name, Status) */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-2xs overflow-hidden transition-colors">
+      {/* Attendance Table (Matching Screenshot 1 1:1) */}
+      <div className="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs sm:text-sm">
-            <thead className="bg-slate-50/50 dark:bg-slate-800/60 text-slate-400 font-semibold uppercase text-[11px] tracking-wider border-b border-slate-100 dark:border-slate-800">
+            <thead className="border-b border-slate-100 dark:border-slate-700/70 text-slate-400 dark:text-slate-400 font-semibold uppercase text-[11px] tracking-wider bg-slate-50/40 dark:bg-slate-900/20">
               <tr>
-                <th className="py-4 px-6">Roll Number</th>
-                <th className="py-4 px-6">Full Name</th>
-                <th className="py-4 px-6 text-center sm:text-right">Status Action</th>
+                <th className="py-3.5 px-6">Roll #</th>
+                <th className="py-3.5 px-6">Full Name</th>
+                <th className="py-3.5 px-6 text-right sm:text-left">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-              {paginatedStudents.length === 0 ? (
-                <tr>
-                  <td colSpan={3} className="py-10 text-center text-slate-400">
-                    No students match your query.
-                  </td>
-                </tr>
-              ) : (
-                paginatedStudents.map((student) => {
-                  const currentStatus = dailyStatus[student.id] || 'PRESENT';
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50 text-slate-700 dark:text-slate-300">
+              {currentStudents.map((std) => {
+                const status = statusMap[std.id] || 'NOT_MARKED';
 
-                  return (
-                    <tr key={student.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition">
-                      {/* Roll number */}
-                      <td className="py-3.5 px-6 font-mono font-bold text-slate-800 dark:text-slate-200">
-                        {student.rollNumber || '777870'}
-                      </td>
+                return (
+                  <tr
+                    key={std.id}
+                    className="hover:bg-slate-50/60 dark:hover:bg-slate-700/20 transition"
+                  >
+                    {/* Roll # */}
+                    <td className="py-3.5 px-6 font-medium text-slate-600 dark:text-slate-400">
+                      {std.rollNumber || '467564'}
+                    </td>
 
-                      {/* Full Name */}
-                      <td className="py-3.5 px-6">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={student.avatar}
-                            alt={student.name}
-                            className="w-7 h-7 rounded-full object-cover ring-1 ring-slate-200 dark:ring-slate-700"
-                          />
-                          <span className="font-semibold text-slate-900 dark:text-white">{student.name}</span>
-                        </div>
-                      </td>
+                    {/* Full Name */}
+                    <td className="py-3.5 px-6 font-semibold text-slate-800 dark:text-slate-200">
+                      {std.name}
+                    </td>
 
-                      {/* Status Toggles */}
-                      <td className="py-3.5 px-6 text-center sm:text-right">
-                        <div className="inline-flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200/60 dark:border-slate-700">
+                    {/* Status: NOT MARKED or marked with quick toggles (Matching Screenshot 1) */}
+                    <td className="py-3.5 px-6 whitespace-nowrap text-right sm:text-left">
+                      <div className="flex items-center gap-1.5 justify-end sm:justify-start">
+                        {status === 'NOT_MARKED' ? (
                           <button
-                            type="button"
-                            onClick={() => handleStatusChange(student.id, 'PRESENT')}
-                            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                              currentStatus === 'PRESENT'
-                                ? 'bg-emerald-600 text-white shadow-2xs'
-                                : 'text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400'
-                            }`}
+                            onClick={() => handleToggleStatus(std.id)}
+                            className="px-3 py-1 bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-[11px] font-bold uppercase tracking-wider transition"
+                            title="Click to toggle status"
+                          >
+                            NOT MARKED
+                          </button>
+                        ) : status === 'PRESENT' ? (
+                          <button
+                            onClick={() => handleToggleStatus(std.id)}
+                            className="px-3 py-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded text-[11px] font-bold uppercase tracking-wider transition"
                           >
                             PRESENT
                           </button>
+                        ) : status === 'ABSENT' ? (
                           <button
-                            type="button"
-                            onClick={() => handleStatusChange(student.id, 'ABSENT')}
-                            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                              currentStatus === 'ABSENT'
-                                ? 'bg-rose-600 text-white shadow-2xs'
-                                : 'text-slate-600 dark:text-slate-300 hover:text-rose-700 dark:hover:text-rose-400'
-                            }`}
+                            onClick={() => handleToggleStatus(std.id)}
+                            className="px-3 py-1 bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 rounded text-[11px] font-bold uppercase tracking-wider transition"
                           >
                             ABSENT
                           </button>
+                        ) : (
                           <button
-                            type="button"
-                            onClick={() => handleStatusChange(student.id, 'LEAVE')}
-                            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                              currentStatus === 'LEAVE'
-                                ? 'bg-amber-500 text-white shadow-2xs'
-                                : 'text-slate-600 dark:text-slate-300 hover:text-amber-700 dark:hover:text-amber-400'
-                            }`}
+                            onClick={() => handleToggleStatus(std.id)}
+                            className="px-3 py-1 bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 rounded text-[11px] font-bold uppercase tracking-wider transition"
                           >
                             LEAVE
                           </button>
+                        )}
+
+                        {/* Quick Action Pills for effortless 1-click marking */}
+                        <div className="hidden sm:flex items-center gap-1 ml-2 opacity-60 hover:opacity-100 transition">
+                          <button
+                            onClick={() => handleSetStatus(std.id, 'PRESENT')}
+                            className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${
+                              status === 'PRESENT'
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-slate-100 dark:bg-slate-700 text-slate-500 hover:bg-emerald-100 hover:text-emerald-700'
+                            }`}
+                            title="Mark Present"
+                          >
+                            P
+                          </button>
+                          <button
+                            onClick={() => handleSetStatus(std.id, 'ABSENT')}
+                            className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${
+                              status === 'ABSENT'
+                                ? 'bg-rose-600 text-white'
+                                : 'bg-slate-100 dark:bg-slate-700 text-slate-500 hover:bg-rose-100 hover:text-rose-700'
+                            }`}
+                            title="Mark Absent"
+                          >
+                            A
+                          </button>
+                          <button
+                            onClick={() => handleSetStatus(std.id, 'LEAVE')}
+                            className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${
+                              status === 'LEAVE'
+                                ? 'bg-amber-500 text-white'
+                                : 'bg-slate-100 dark:bg-slate-700 text-slate-500 hover:bg-amber-100 hover:text-amber-700'
+                            }`}
+                            title="Mark Leave"
+                          >
+                            L
+                          </button>
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
 
-        {/* Pagination Footer */}
-        {filteredStudents.length > 0 && (
-          <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
-            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
-              <div>
-                Showing <span className="font-bold text-slate-800 dark:text-slate-200">{startIndex + 1}</span> to{' '}
-                <span className="font-bold text-slate-800 dark:text-slate-200">{endIndex}</span> of{' '}
-                <span className="font-bold text-slate-800 dark:text-slate-200">{filteredStudents.length}</span> students
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                <span>Per page:</span>
-                <select
-                  value={pageSize}
-                  onChange={(e) => setPageSize(Number(e.target.value))}
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-semibold py-1 px-2 rounded-lg text-xs focus:outline-hidden cursor-pointer"
-                >
-                  <option value={8}>8</option>
-                  <option value={12}>12</option>
-                  <option value={20}>20</option>
-                  <option value={35}>All (35)</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Pagination Controls */}
-            <div className="flex items-center gap-1.5 self-center sm:self-auto">
-              <button
-                onClick={() => setCurrentPage(1)}
-                disabled={validCurrentPage === 1}
-                title="First Page"
-                className="p-1.5 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-white rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
-              >
-                <ChevronsLeft className="w-4 h-4" />
-              </button>
-
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={validCurrentPage === 1}
-                title="Previous Page"
-                className="px-2.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center gap-1 cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">Prev</span>
-              </button>
-
-              <div className="flex items-center gap-1">
-                {getPageNumbers().map((page, idx) => {
-                  if (typeof page === 'string') {
-                    return (
-                      <span key={`ellipsis-${idx}`} className="px-2 text-xs text-slate-400">
-                        ...
-                      </span>
-                    );
-                  }
-                  const isActive = page === validCurrentPage;
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`min-w-8 h-8 px-2 text-xs font-bold rounded-lg transition cursor-pointer ${
-                        isActive
-                          ? 'bg-emerald-600 text-white shadow-xs'
-                          : 'text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={validCurrentPage === totalPages}
-                title="Next Page"
-                className="px-2.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center gap-1 cursor-pointer"
-              >
-                <span className="hidden sm:inline">Next</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-
-              <button
-                onClick={() => setCurrentPage(totalPages)}
-                disabled={validCurrentPage === totalPages}
-                title="Last Page"
-                className="p-1.5 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-white rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
-              >
-                <ChevronsRight className="w-4 h-4" />
-              </button>
-            </div>
+        {/* Footer & Pagination (Matching Screenshot 1: "Showing 1-10 of 57 students" + < Previous 1 2 ... 6 Next >) */}
+        <div className="p-4 border-t border-slate-100 dark:border-slate-700/70 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400 bg-slate-50/40 dark:bg-slate-900/20">
+          <div>
+            Showing{' '}
+            <strong className="text-slate-800 dark:text-slate-200 font-semibold">
+              {startIndex + 1}-{endIndex}
+            </strong>{' '}
+            of{' '}
+            <strong className="text-slate-800 dark:text-slate-200 font-semibold">
+              {students.length}
+            </strong>{' '}
+            students
           </div>
-        )}
+
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-xs transition"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              Previous
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+              if (totalPages > 5 && p > 2 && p < totalPages) {
+                if (p === 3) {
+                  return (
+                    <span key={p} className="px-1 text-xs text-slate-400">
+                      ...
+                    </span>
+                  );
+                }
+                return null;
+              }
+              return (
+                <button
+                  key={p}
+                  onClick={() => handlePageChange(p)}
+                  className={`w-7 h-7 rounded-md text-xs font-semibold flex items-center justify-center transition ${
+                    currentPage === p
+                      ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  {p}
+                </button>
+              );
+            })}
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-xs transition"
+            >
+              Next
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

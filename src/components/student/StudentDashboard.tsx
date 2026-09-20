@@ -7,9 +7,9 @@ export const StudentDashboard: React.FC = () => {
   const [scheduleTab, setScheduleTab] = useState<'assignments' | 'quizzes' | 'events'>('quizzes');
   const [copiedVoucher, setCopiedVoucher] = useState(false);
 
-  // Calculate dynamic stats
-  const totalClasses = 111;
-  const presentClasses = attendance.filter((a) => a.studentId === currentUser.id && a.status === 'PRESENT').length + 74; // combined with historical
+  // Calculate dynamic stats (matching screenshot 2: 84/113 attendance, 8/13 assignments, 74% progress)
+  const totalClasses = 113;
+  const presentClasses = attendance.filter((a) => a.studentId === currentUser.id && a.status === 'PRESENT').length + 76; // 84 total present
   const totalAssignments = 13;
   const submittedAssignments = assignments.filter((a) => a.status === 'APPROVED' || a.status === 'SUBMITTED' || a.status === 'LATE SUBMITTED').length;
 
@@ -40,7 +40,7 @@ export const StudentDashboard: React.FC = () => {
         >
           <div>
             <h3 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">
-              82/111
+              84/113
             </h3>
             <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">Attendance</p>
           </div>
@@ -100,10 +100,10 @@ export const StudentDashboard: React.FC = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-medium text-slate-600 dark:text-slate-400">
                 <span>Progress</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200">73% Completed</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">74% Completed</span>
               </div>
               <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-                <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: '73%' }} />
+                <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: '74%' }} />
               </div>
             </div>
 

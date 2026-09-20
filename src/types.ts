@@ -88,6 +88,7 @@ export interface Quiz {
   title: string;
   module: string;
   course: string;
+  coursesList?: string;
   questionsCount: number;
   questions: QuizQuestion[];
   date: string;

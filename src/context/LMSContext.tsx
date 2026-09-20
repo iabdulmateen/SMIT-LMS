@@ -31,7 +31,7 @@ import {
 } from '../data/mockData';
 
 export type StudentTab = 'dashboard' | 'progress' | 'attendance' | 'payment' | 'assignment' | 'quiz' | 'profile';
-export type TeacherTab = 'students' | 'attendance' | 'assignments' | 'quizzes';
+export type TeacherTab = 'students' | 'attendance' | 'assignments' | 'quizzes' | 'progress';
 export type AdminTab = 'trainers' | 'studentProgress' | 'activityLog';
 
 interface ToastNotification {
@@ -84,6 +84,7 @@ interface LMSContextType {
   updateAssignment: (id: string, update: Partial<Assignment>) => void;
   deleteAssignment: (id: string) => void;
   createQuiz: (newQuiz: Omit<Quiz, 'id'>) => void;
+  toggleQuizStatus: (quizId: string) => void;
   submitQuizAttempt: (quizId: string, scorePercentage: number) => void;
   addStudent: (studentData: Omit<UserProfile, 'id'>) => void;
   updateStudentStatus: (studentId: string, status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED') => void;
@@ -239,10 +240,11 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const showToast = (message: string, type: 'success' | 'info' | 'warning' | 'error' = 'success') => {
     const id = Date.now().toString() + Math.random().toString(36).substring(2, 5);
-    setNotifications((prev) => [...prev, { id, message, type }]);
+    // Keep only the most recent notification so toasts never stack up annoyingly
+    setNotifications([{ id, message, type }]);
     setTimeout(() => {
       removeToast(id);
-    }, 4000);
+    }, 2500);
   };
 
   const removeToast = (id: string) => {
@@ -254,7 +256,7 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('smit_lms_auth', 'true');
     setRoleState(newRole);
     localStorage.setItem('smit_lms_role', newRole);
-    showToast(`Welcome back! Logged in as ${newRole.toUpperCase()}.`, 'success');
+    showToast(`Welcome! Logged in as ${newRole.toUpperCase()}.`, 'success');
   };
 
   const logout = () => {
@@ -270,7 +272,6 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const setRole = (newRole: Role) => {
     setRoleState(newRole);
-    showToast(`Switched view to ${newRole.toUpperCase()} portal`, 'info');
   };
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
@@ -307,11 +308,7 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {
-    setIsDarkMode((prev) => {
-      const next = !prev;
-      showToast(`Switched to ${next ? 'Dark' : 'Light'} Mode`, 'info');
-      return next;
-    });
+    setIsDarkMode((prev) => !prev);
   };
 
   const updateUserProfile = (data: Partial<UserProfile>) => {
@@ -550,6 +547,20 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     );
     showToast(`Quiz "${quiz.title}" created for ${quiz.course}`, 'success');
+  };
+
+  const toggleQuizStatus = (quizId: string) => {
+    setQuizzes((prev) =>
+      prev.map((q) => {
+        if (q.id === quizId) {
+          const nextStatus = q.status === 'ACTIVE' ? 'EXPIRED' : 'ACTIVE';
+          return { ...q, status: nextStatus };
+        }
+        return q;
+      })
+    );
+    const target = quizzes.find((q) => q.id === quizId);
+    showToast(`Quiz status updated for "${target?.title || 'Quiz'}"`, 'info');
   };
 
   const submitQuizAttempt = (quizId: string, scorePercentage: number) => {
@@ -793,6 +804,7 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateAssignment,
         deleteAssignment,
         createQuiz,
+        toggleQuizStatus,
         submitQuizAttempt,
         addStudent,
         updateStudentStatus,

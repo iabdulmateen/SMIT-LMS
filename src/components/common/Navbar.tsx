@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useLMS } from '../../context/LMSContext';
-import { Menu, MessageSquare, ChevronRight, UserCheck, Shield, GraduationCap, RefreshCw } from 'lucide-react';
+import { MessageSquare, ChevronRight, UserCheck, Shield, GraduationCap, RefreshCw, Moon, Sun } from 'lucide-react';
 import { FeedbackModal } from './FeedbackModal';
+import { SmitLogo } from './SmitLogo';
 
 export const Navbar: React.FC = () => {
   const {
@@ -13,10 +14,10 @@ export const Navbar: React.FC = () => {
     setTeacherTab,
     adminTab,
     setAdminTab,
-    sidebarOpen,
-    toggleSidebar,
     currentUser,
     resetAllData,
+    isDarkMode,
+    toggleDarkMode,
   } = useLMS();
 
   const [feedbackOpen, setFeedbackOpen] = useState(false);
@@ -79,17 +80,26 @@ export const Navbar: React.FC = () => {
     <>
       <header className="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs border-b border-slate-100 dark:border-slate-800 px-4 sm:px-6 py-3 transition-colors">
         <div className="flex items-center justify-between gap-3">
-          {/* Left: Hamburger toggle & Breadcrumbs */}
-          <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
+          {/* Mobile Top View (Matching Image 2: User Avatar on Left) */}
+          <div className="flex lg:hidden items-center gap-3">
             <button
-              onClick={toggleSidebar}
-              className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
-              aria-label="Toggle navigation"
-              title={sidebarOpen ? "Collapse sidebar" : "Open sidebar"}
+              type="button"
+              onClick={() => {
+                if (role === 'student') setStudentTab('profile');
+              }}
+              className="relative p-0.5 focus:outline-hidden"
+              title="View Profile"
             >
-              <Menu className="w-5 h-5" />
+              <img
+                src={currentUser.avatar}
+                alt={currentUser.name}
+                className="w-10 h-10 rounded-full object-cover ring-2 ring-blue-500/20"
+              />
             </button>
+          </div>
 
+          {/* Desktop Left: Breadcrumbs */}
+          <div className="hidden lg:flex items-center gap-2 sm:gap-3 overflow-hidden">
             <nav className="flex items-center text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap overflow-x-auto no-scrollbar py-1">
               <button
                 type="button"
@@ -121,10 +131,10 @@ export const Navbar: React.FC = () => {
             </nav>
           </div>
 
-          {/* Right: Role Switcher & Feedback */}
+          {/* Right Controls: Moon Toggle + Feedback + Role Switcher */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            {/* Quick Role Switcher Pills */}
-            <div className="bg-slate-100 dark:bg-slate-800 p-0.5 sm:p-1 rounded-xl flex items-center gap-0.5 border border-slate-200/70 dark:border-slate-700">
+            {/* Quick Role Switcher Pills (Desktop Only) */}
+            <div className="hidden lg:flex bg-slate-100 dark:bg-slate-800 p-0.5 sm:p-1 rounded-xl items-center gap-0.5 border border-slate-200/70 dark:border-slate-700">
               <button
                 onClick={() => setRole('student')}
                 className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
@@ -135,7 +145,7 @@ export const Navbar: React.FC = () => {
                 title="Login as Student"
               >
                 <GraduationCap className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Student</span>
+                <span>Student</span>
               </button>
 
               <button
@@ -148,7 +158,7 @@ export const Navbar: React.FC = () => {
                 title="Login as Teacher"
               >
                 <UserCheck className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Teacher</span>
+                <span>Teacher</span>
               </button>
 
               <button
@@ -161,17 +171,31 @@ export const Navbar: React.FC = () => {
                 title="Login as Admin"
               >
                 <Shield className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Admin</span>
+                <span>Admin</span>
               </button>
             </div>
 
-            {/* Feedback Button (matching screenshot) */}
+            {/* Dark / Light Mode Toggle Button (Matching Image 2) */}
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700 transition"
+              title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {isDarkMode ? (
+                <Sun className="w-4 h-4 text-amber-500" />
+              ) : (
+                <Moon className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+              )}
+            </button>
+
+            {/* Feedback Button (Matching Image 2) */}
             <button
               onClick={() => setFeedbackOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/60 hover:border-slate-300 transition shadow-2xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/60 transition shadow-2xs cursor-pointer"
             >
               <MessageSquare className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-              <span className="hidden md:inline">Feedback</span>
+              <span>Feedback</span>
             </button>
 
             {/* Demo Reset button */}

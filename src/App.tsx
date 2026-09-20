@@ -7,6 +7,7 @@ import React from 'react';
 import { LMSProvider, useLMS } from './context/LMSContext';
 import { Navbar } from './components/common/Navbar';
 import { Sidebar } from './components/common/Sidebar';
+import { MobileFooterNav } from './components/common/MobileFooterNav';
 import { ToastContainer } from './components/common/ToastContainer';
 import { AuthPortal } from './components/auth/AuthPortal';
 
@@ -24,6 +25,7 @@ import { TeacherStudents } from './components/teacher/TeacherStudents';
 import { TeacherAttendance } from './components/teacher/TeacherAttendance';
 import { TeacherAssignments } from './components/teacher/TeacherAssignments';
 import { TeacherQuizzes } from './components/teacher/TeacherQuizzes';
+import { TeacherCourseProgress } from './components/teacher/TeacherCourseProgress';
 
 // Admin Components
 import { AdminManageTrainers } from './components/admin/AdminManageTrainers';
@@ -48,13 +50,13 @@ const MainLayout: React.FC = () => {
       {/* Responsive Sidebar */}
       <Sidebar />
 
-      {/* Main Content Area (offset by sidebar width on desktop when sidebar is open) */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${sidebarOpen ? 'lg:pl-64' : 'lg:pl-0'}`}>
+      {/* Main Content Area (offset by sidebar width on desktop: w-64 when open, w-20 when collapsed) */}
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${sidebarOpen ? 'lg:pl-64' : 'lg:pl-20'}`}>
         {/* Top Sticky Navbar */}
         <Navbar />
 
-        {/* Page Content Body */}
-        <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto">
+        {/* Page Content Body (with bottom padding on mobile for footer nav) */}
+        <main className="flex-1 p-4 sm:p-6 md:p-8 pb-24 lg:pb-8 max-w-7xl w-full mx-auto">
           {/* Student Role Views */}
           {role === 'student' && (
             <div className="animate-in fade-in duration-200">
@@ -75,6 +77,7 @@ const MainLayout: React.FC = () => {
               {teacherTab === 'attendance' && <TeacherAttendance />}
               {teacherTab === 'assignments' && <TeacherAssignments />}
               {teacherTab === 'quizzes' && <TeacherQuizzes />}
+              {teacherTab === 'progress' && <TeacherCourseProgress />}
             </div>
           )}
 
@@ -88,6 +91,9 @@ const MainLayout: React.FC = () => {
           )}
         </main>
       </div>
+
+      {/* Mobile Bottom Footer Navigation (All sidebar navigation on mobile) */}
+      <MobileFooterNav />
 
       {/* Toast Notification Container */}
       <ToastContainer />
